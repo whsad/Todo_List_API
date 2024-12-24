@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: pro
+  datasource:
+    url: jdbc:mysql://${todo.mysql.ip}:${todo.mysql.port}/${todo.mysql.db}?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true
+    username: ${todo.mysql.username}
+    password: ${todo.mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
