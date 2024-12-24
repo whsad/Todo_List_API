@@ -2,6 +2,7 @@ package com.kirito.todoList.filter;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
+import com.kirito.todoList.common.constants.Constants;
 import com.kirito.todoList.common.dtos.ResponseResult;
 import com.kirito.todoList.utils.WebUtils;
 import org.springframework.http.HttpStatus;
@@ -19,11 +20,11 @@ import java.util.concurrent.TimeUnit;
 public class PreRateLimitFilter extends OncePerRequestFilter {
 
     // global flow control: 100 requests per second
-    private final RateLimiter rateLimiter = RateLimiter.create(100);
+    private final RateLimiter rateLimiter = RateLimiter.create(Constants.RATE_LIMIT);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (!rateLimiter.tryAcquire(500, TimeUnit.MILLISECONDS)){
+        if (!rateLimiter.tryAcquire(Constants.TRY_ACQUIRE, TimeUnit.MILLISECONDS)){
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             WebUtils.renderString(response, ResponseResult.errorResult("Rate limit exceeded"));
             return;

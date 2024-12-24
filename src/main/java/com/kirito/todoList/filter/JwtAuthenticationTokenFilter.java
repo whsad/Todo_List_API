@@ -1,6 +1,7 @@
 package com.kirito.todoList.filter;
 
 
+import com.kirito.todoList.common.constants.Constants;
 import com.kirito.todoList.common.pojos.LoginUser;
 import com.kirito.todoList.utils.JwtUtils;
 import com.kirito.todoList.utils.RedisCache;
@@ -31,7 +32,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 获取token
-        String token = request.getHeader("Authorization");
+        String token = request.getHeader(Constants.HEADER);
 
         // 检查 Token 是否存在并解析
         if (!StringUtils.hasText(token)) {
@@ -48,7 +49,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             throw new RuntimeException(e);
         }
         // 从 redis 中获取用户信息
-        LoginUser loginUser = redisCache.getCacheObject("login:" + userId);
+        LoginUser loginUser = redisCache.getCacheObject(Constants.BASE_LOGIN_KEY + userId);
         if (Objects.isNull(loginUser)) {
             throw new RuntimeException("用户未登录");
         }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kirito.todoList.common.constants.Constants;
 import com.kirito.todoList.common.dtos.ItemDto;
 import com.kirito.todoList.common.dtos.PageResult;
 import com.kirito.todoList.common.dtos.ResponseResult;
@@ -90,7 +91,7 @@ public class TodoServiceImpl extends ServiceImpl<TodoMapper, Todo> implements To
                 return cacheKey;
             }
             LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            cacheKey = "Todo:pageSize:" + loginUser.getUser().getId();
+            cacheKey = Constants.BASE_PAGE_KEY + loginUser.getUser().getId();
             return cacheKey;
         }
     }

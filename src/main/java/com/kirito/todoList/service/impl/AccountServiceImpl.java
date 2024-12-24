@@ -59,7 +59,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
         Map<String, String> map = new HashMap<>();
         map.put("token", JwtUtils.createJWT(userId));
 
-        redisCache.setCacheObject("login:" + userId,
+        redisCache.setCacheObject(Constants.BASE_LOGIN_KEY + userId,
                 new LoginUser(user, new ArrayList<>(Collections.singletonList(user.getAuthority()))),
                 Constants.TIMEOUT, TimeUnit.HOURS);
 
@@ -77,7 +77,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
                 new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
         );
         if (Objects.isNull(authenticate)) {
-            throw new RuntimeException("Login fail");
+            throw new RuntimeException("Login Fail");
         }
 
         // 3. 生成Jwt令牌
@@ -85,7 +85,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
         String userId = loginUser.getUser().getId();
         Map<String, String> map = new HashMap<>();
         map.put("token", JwtUtils.createJWT(userId));
-        redisCache.setCacheObject("login:" + userId, loginUser,
+        redisCache.setCacheObject(Constants.BASE_LOGIN_KEY + userId, loginUser,
                 Constants.TIMEOUT, TimeUnit.HOURS);
 
         // 4. 返回
@@ -98,7 +98,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         // 删除 redis 中的值
-        redisCache.deleteObject("login:" + loginUser.getUser().getId());
+        redisCache.deleteObject(Constants.BASE_LOGIN_KEY + loginUser.getUser().getId());
         return ResponseResult.okResult(SUCCESS);
     }
 }

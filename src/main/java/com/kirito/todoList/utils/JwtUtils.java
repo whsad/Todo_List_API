@@ -1,5 +1,6 @@
 package com.kirito.todoList.utils;
 
+import com.kirito.todoList.common.constants.Constants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -15,9 +16,9 @@ import java.util.concurrent.TimeUnit;
 public class JwtUtils {
 
     // 有效期
-    private static final Long JWT_TTL =  TimeUnit.HOURS.toMillis(4);; // 一个小时
+    private static final Long JWT_TTL =  TimeUnit.HOURS.toMillis(Constants.TIMEOUT);; // 一个小时
     // 设置密钥明文, 注意长度必须大于等于 6 位
-    private static final String JWT_KEY = "kirito";
+    private static final String JWT_KEY = Constants.SIGNATURE;
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
 

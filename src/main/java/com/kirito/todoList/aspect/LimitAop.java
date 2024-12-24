@@ -37,7 +37,7 @@ public class LimitAop {
         if (limit != null){
             // key effect: different interfaces, different flow control
             String key = limit.key();
-            RateLimiter rateLimiter = null;
+            RateLimiter rateLimiter;
             // Verify cache matches the key
             if (!limiterMap.containsKey(key)){
                 // Create token bucket
