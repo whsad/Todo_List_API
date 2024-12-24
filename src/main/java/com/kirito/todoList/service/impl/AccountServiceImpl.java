@@ -49,14 +49,17 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
         if (user != null) {
             return ResponseResult.errorResult(REGISTERED);
         }
+
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+
         user = new User(dto);
         accountMapper.insert(user);
         String userId = user.getId();
         Map<String, String> map = new HashMap<>();
         map.put("token", JwtUtils.createJWT(userId));
-        List<String> list = new ArrayList<>(Arrays.asList("user", "admin"));
+
         redisCache.setCacheObject("login:" + userId,
-                new LoginUser(user, list),
+                new LoginUser(user, new ArrayList<>(Collections.singletonList(user.getAuthority()))),
                 4, TimeUnit.HOURS);
 
         return ResponseResult.okResult(map);

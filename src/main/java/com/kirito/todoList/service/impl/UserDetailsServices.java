@@ -10,10 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 @Service
@@ -35,7 +32,8 @@ public class UserDetailsServices implements UserDetailsService {
         }
 
         // 自定义权限
-        List<String> list = new ArrayList<>(Arrays.asList("user", "admin"));
+        //List<String> list = new ArrayList<>(Arrays.asList("user", "admin"));
+        List<String> list = new ArrayList<>(Collections.singletonList(user.getAuthority()));
 
         return new LoginUser(user, list);
     }

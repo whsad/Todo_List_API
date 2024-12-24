@@ -22,12 +22,14 @@ public class User implements Serializable {
     private String name;
     private String email;
     private String password;
+    private String authority;
 
     public User(RegisterDto dto){
         this.id = UUID.randomUUID().toString().replace("-", "");
         this.name = dto.getName();
         this.email = dto.getEmail();
         this.password = dto.getPassword();
+        this.authority = "user";
     }
 
 

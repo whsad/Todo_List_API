@@ -1,4 +1,4 @@
-package com.kirito.todoList.Controller;
+package com.kirito.todoList.controller;
 
 
 import com.kirito.todoList.annotaion.Limit;
@@ -30,7 +30,7 @@ public class TodoController {
      * Create a To-Do Item
      */
     @PostMapping
-    @PreAuthorize("hasAuthority('user')")
+    @PreAuthorize("hasAnyAuthority('user', 'admin')")
     @Limit(key = "create", permitsPerSecond = 30, timeout = 1000)
     public ResponseResult<?> create(@RequestBody ItemDto dto){
         return todoService.createItem(dto);
@@ -62,7 +62,7 @@ public class TodoController {
      * Get To-Do Items
      */
     @GetMapping
-    @PreAuthorize("hasAuthority('user')")
+    @PreAuthorize("hasAnyAuthority('user', 'admin')")
     @Limit(key = "pageSize", permitsPerSecond = 30, timeout = 1000)
     public ResponseResult<?> pageSize(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
