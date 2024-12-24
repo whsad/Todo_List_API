@@ -2,6 +2,7 @@ package com.kirito.todoList.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kirito.todoList.common.constants.Constants;
 import com.kirito.todoList.common.dtos.LoginDto;
 import com.kirito.todoList.common.dtos.RegisterDto;
 import com.kirito.todoList.common.dtos.ResponseResult;
@@ -60,7 +61,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
 
         redisCache.setCacheObject("login:" + userId,
                 new LoginUser(user, new ArrayList<>(Collections.singletonList(user.getAuthority()))),
-                4, TimeUnit.HOURS);
+                Constants.TIMEOUT, TimeUnit.HOURS);
 
         return ResponseResult.okResult(map);
     }
@@ -84,8 +85,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
         String userId = loginUser.getUser().getId();
         Map<String, String> map = new HashMap<>();
         map.put("token", JwtUtils.createJWT(userId));
-        redisCache.setCacheObject("login:" + userId, loginUser
-                , 4, TimeUnit.HOURS);
+        redisCache.setCacheObject("login:" + userId, loginUser,
+                Constants.TIMEOUT, TimeUnit.HOURS);
 
         // 4. 返回
         return ResponseResult.okResult(map);

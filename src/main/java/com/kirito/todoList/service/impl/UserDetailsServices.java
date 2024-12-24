@@ -31,7 +31,7 @@ public class UserDetailsServices implements UserDetailsService {
             throw new RuntimeException("Invalid username or password");
         }
 
-        // 自定义权限
+        // custom authority
         //List<String> list = new ArrayList<>(Arrays.asList("user", "admin"));
         List<String> list = new ArrayList<>(Collections.singletonList(user.getAuthority()));
 

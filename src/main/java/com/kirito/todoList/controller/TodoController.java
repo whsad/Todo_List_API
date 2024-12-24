@@ -25,7 +25,6 @@ public class TodoController {
     @Autowired
     private RedisCache redisCache;
 
-
     /**
      * Create a To-Do Item
      */
