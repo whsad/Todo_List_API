@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,8 +28,6 @@ public class UserDetailsServices implements UserDetailsService {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getEmail, email);
         User user = accountMapper.selectOne(queryWrapper);
-
-        System.out.println(user);
 
         // 如果没有查询到用户就抛出异常
         if (Objects.isNull(user)){

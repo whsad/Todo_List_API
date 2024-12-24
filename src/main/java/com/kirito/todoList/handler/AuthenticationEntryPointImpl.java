@@ -1,6 +1,5 @@
 package com.kirito.todoList.handler;
 
-import com.alibaba.fastjson.JSON;
 import com.kirito.todoList.common.dtos.ResponseResult;
 import com.kirito.todoList.utils.WebUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         // 设置响应状态和类型
         ResponseResult<?> result = ResponseResult.errorResult(UNAUTHORIZED);
-        WebUtils.renderString(response, JSON.toJSONString(result));
+        WebUtils.renderString(response, result);
         log.warn("用户认证失败 {}, {}", result.getCode(), result.getInfo());
 
     }

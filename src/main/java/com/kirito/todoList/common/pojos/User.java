@@ -1,13 +1,11 @@
 package com.kirito.todoList.common.pojos;
 
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.kirito.todoList.common.dtos.RegisterDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.io.Serializable;
 import java.util.UUID;

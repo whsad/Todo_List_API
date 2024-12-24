@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kirito.todoList.common.dtos.LoginDto;
 import com.kirito.todoList.common.dtos.RegisterDto;
 import com.kirito.todoList.common.dtos.ResponseResult;
-import com.kirito.todoList.common.enums.AppHttpCodeEnum;
 import com.kirito.todoList.common.pojos.LoginUser;
 import com.kirito.todoList.common.pojos.User;
 import com.kirito.todoList.mapper.AccountMapper;
@@ -21,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.kirito.todoList.common.enums.AppHttpCodeEnum.*;
 
@@ -44,11 +44,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
         if (dto.checkParam()) {
             return ResponseResult.errorResult(PARAMETER_ERROR);
         }
-        String encode = passwordEncoder.encode(dto.getPassword());
-        System.out.println(encode);
-        boolean matches = passwordEncoder.matches(dto.getPassword(), encode);
-        System.out.println(matches);
-        dto.setPassword(encode);
 
         User user = accountMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getEmail, dto.getEmail()));
         if (user != null) {
@@ -57,11 +52,12 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
         user = new User(dto);
         accountMapper.insert(user);
         String userId = user.getId();
-        String jwt = JwtUtils.createJWT(userId);
         Map<String, String> map = new HashMap<>();
-        map.put("token", jwt);
+        map.put("token", JwtUtils.createJWT(userId));
         List<String> list = new ArrayList<>(Arrays.asList("user", "admin"));
-        redisCache.setCacheObject("login:" + userId, new LoginUser(user, list));
+        redisCache.setCacheObject("login:" + userId,
+                new LoginUser(user, list),
+                4, TimeUnit.HOURS);
 
         return ResponseResult.okResult(map);
     }
@@ -71,12 +67,10 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
         if (dto.checkParam()) {
             return ResponseResult.errorResult(PARAMETER_ERROR);
         }
-        String email = dto.getEmail();
-        String password = dto.getPassword();
 
         // 2.校验登录
         Authentication authenticate = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
+                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
         );
         if (Objects.isNull(authenticate)) {
             throw new RuntimeException("Login fail");
@@ -85,10 +79,10 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
         // 3. 生成Jwt令牌
         LoginUser loginUser = (LoginUser) authenticate.getPrincipal();
         String userId = loginUser.getUser().getId();
-        String jwt = JwtUtils.createJWT(userId);
         Map<String, String> map = new HashMap<>();
-        map.put("token", jwt);
-        redisCache.setCacheObject("login:" + userId, loginUser);
+        map.put("token", JwtUtils.createJWT(userId));
+        redisCache.setCacheObject("login:" + userId, loginUser
+                , 4, TimeUnit.HOURS);
 
         // 4. 返回
         return ResponseResult.okResult(map);
@@ -99,9 +93,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, User> impleme
         UsernamePasswordAuthenticationToken authentication =
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
-        String userId = loginUser.getUser().getId();
         // 删除 redis 中的值
-        redisCache.deleteObject("login:" + userId);
+        redisCache.deleteObject("login:" + loginUser.getUser().getId());
         return ResponseResult.okResult(SUCCESS);
     }
 }

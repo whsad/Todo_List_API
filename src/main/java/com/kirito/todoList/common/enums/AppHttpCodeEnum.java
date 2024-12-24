@@ -10,6 +10,7 @@ public enum AppHttpCodeEnum {
     REGISTERED(402, "Email registered"),
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found"),
+    LIMIT_EXCEEDED(405, "Rate limit exceeded"),
     INVALID_SIGNATURE(501, "Invalid signature"),
     TOKEN_EXPIRATION(502, "token expiration"),
     ALGORITHM_ERROR(503, "The token algorithms are inconsistent"),

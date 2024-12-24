@@ -1,7 +1,9 @@
 package com.kirito.todoList.filter;
 
-import com.kirito.todoList.service.Bucket4jRateLimiterService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.alibaba.fastjson.JSON;
+import com.google.common.util.concurrent.RateLimiter;
+import com.kirito.todoList.common.dtos.ResponseResult;
+import com.kirito.todoList.utils.WebUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -11,19 +13,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @Component
-public class Bucket4jRateLimiterFilter extends OncePerRequestFilter {
+public class PreRateLimitFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private Bucket4jRateLimiterService rateLimiterService;
+    // global flow control: 100 requests per second
+    private final RateLimiter rateLimiter = RateLimiter.create(100);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String clientKey = request.getRemoteAddr();
-        if (!rateLimiterService.isRequestAllowed(clientKey)){
+        if (!rateLimiter.tryAcquire(500, TimeUnit.MILLISECONDS)){
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.getWriter().write("Rate limit exceeded");
+            WebUtils.renderString(response, ResponseResult.errorResult("Rate limit exceeded"));
             return;
         }
         filterChain.doFilter(request, response);

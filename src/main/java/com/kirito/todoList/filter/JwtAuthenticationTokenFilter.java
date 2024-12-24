@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Objects;
 
 
-
 @Component
 @Slf4j
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
@@ -44,21 +43,19 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         // 解析token
         String userId;
         try {
-            Claims claims = JwtUtils.parseJWT(token);
-            userId = claims.getSubject();
+            userId = JwtUtils.parseJWT(token).getSubject();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         // 从 redis 中获取用户信息
-        String redisKey = "login:" + userId;
-        LoginUser loginUser = redisCache.getCacheObject(redisKey);
+        LoginUser loginUser = redisCache.getCacheObject("login:" + userId);
         if (Objects.isNull(loginUser)) {
             throw new RuntimeException("用户未登录");
         }
         // 存入 SecurityContextHolder
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities())
+        );
         // 放行
         filterChain.doFilter(request, response);
     }

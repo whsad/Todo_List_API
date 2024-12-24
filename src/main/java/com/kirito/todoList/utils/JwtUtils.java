@@ -6,10 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class JwtUtils {
 
     // 有效期
-    private static final Long JWT_TTL =  TimeUnit.HOURS.toMillis(1);; // 一个小时
+    private static final Long JWT_TTL =  TimeUnit.HOURS.toMillis(4);; // 一个小时
     // 设置密钥明文, 注意长度必须大于等于 6 位
     private static final String JWT_KEY = "kirito";
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
@@ -32,10 +30,7 @@ public class JwtUtils {
      * @param subject token中要存放的数据（json格式）
      */
     public static String createJWT(String subject){
-        log.info("Creating JWT for subject: {}", subject);
-        String jwt = getJwtBuilder(subject, null, getUUID()).compact();
-        log.debug("Generated JWT: {}", jwt);
-        return jwt;
+        return getJwtBuilder(subject, null, getUUID()).compact();
     }
 
     /**
@@ -87,7 +82,6 @@ public class JwtUtils {
      * 解析
      */
     public static Claims parseJWT(String jwt){
-        log.info("Parsing JWT: {}", jwt);
         try {
             SecretKey secretKey = generalKey();
             return Jwts.parser()

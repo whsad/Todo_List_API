@@ -61,6 +61,10 @@ public class ResponseResult<T> implements Serializable {
         return setAppHttpCodeEnum(enums, enums.getInfo());
     }
 
+    public static ResponseResult<?> errorResult(String info){
+        return okResult(401, info);
+    }
+
     private static ResponseResult setAppHttpCodeEnum(AppHttpCodeEnum enums, String info) {
         return okResult(enums.getCode(), info);
     }

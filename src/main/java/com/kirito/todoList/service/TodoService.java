@@ -10,4 +10,8 @@ public interface TodoService extends IService<Todo> {
     ResponseResult<?> createItem(ItemDto dto);
 
     ResponseResult<?> updateItem(ItemDto dto, String Id);
+
+    ResponseResult<?> pageSize(Integer page, Integer limit);
+
+    String getCacheKey();
 }

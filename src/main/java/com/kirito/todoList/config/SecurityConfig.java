@@ -1,7 +1,7 @@
 package com.kirito.todoList.config;
 
-import com.kirito.todoList.filter.Bucket4jRateLimiterFilter;
 import com.kirito.todoList.filter.JwtAuthenticationTokenFilter;
+import com.kirito.todoList.filter.PreRateLimitFilter;
 import com.kirito.todoList.handler.AccessDeniedHandlerImpl;
 import com.kirito.todoList.handler.AuthenticationEntryPointImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class SecurityConfig {
     private AccessDeniedHandlerImpl accessDeniedHandler;
 
     @Autowired
-    private Bucket4jRateLimiterFilter rateLimiterFilter;
+    private PreRateLimitFilter preRateLimitFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,9 +46,8 @@ public class SecurityConfig {
                 .antMatchers("/account/**").permitAll()
                 .anyRequest().authenticated();
 
-        // 添加限流过滤器在 JWT 过滤器之前
-        http.addFilterBefore(rateLimiterFilter, jwtAuthenticationTokenFilter.getClass());
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(preRateLimitFilter, JwtAuthenticationTokenFilter.class);
 
         // 配置异常处理
         http.exceptionHandling()

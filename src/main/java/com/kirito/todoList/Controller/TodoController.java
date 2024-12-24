@@ -1,19 +1,20 @@
 package com.kirito.todoList.Controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
+import com.kirito.todoList.annotaion.Limit;
 import com.kirito.todoList.common.dtos.ItemDto;
-import com.kirito.todoList.common.dtos.PageResult;
 import com.kirito.todoList.common.dtos.ResponseResult;
 import com.kirito.todoList.common.enums.AppHttpCodeEnum;
-import com.kirito.todoList.common.pojos.Todo;
-import com.kirito.todoList.mapper.TodoMapper;
 import com.kirito.todoList.service.TodoService;
+import com.kirito.todoList.utils.RedisCache;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
+
+@Slf4j
 @RestController
 @RequestMapping("/todos")
 public class TodoController {
@@ -21,12 +22,16 @@ public class TodoController {
     @Autowired
     private TodoService todoService;
 
+    @Autowired
+    private RedisCache redisCache;
+
 
     /**
      * Create a To-Do Item
      */
     @PostMapping
     @PreAuthorize("hasAuthority('user')")
+    @Limit(key = "create", permitsPerSecond = 30, timeout = 1000)
     public ResponseResult<?> create(@RequestBody ItemDto dto){
         return todoService.createItem(dto);
     }
@@ -36,6 +41,7 @@ public class TodoController {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('admin')")
+    @Limit(key = "update", permitsPerSecond = 30, timeout = 1000)
     public ResponseResult<?> update(@PathVariable("id") String id, @RequestBody ItemDto dto){
         return todoService.updateItem(dto, id);
     }
@@ -45,8 +51,10 @@ public class TodoController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('admin')")
+    @Limit(key = "delete", permitsPerSecond = 30, timeout = 1000)
     public ResponseResult<?> delete(@PathVariable("id") String id){
         todoService.removeById(id);
+        redisCache.deleteObject(todoService.getCacheKey());
         return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
     }
 
@@ -55,15 +63,11 @@ public class TodoController {
      */
     @GetMapping
     @PreAuthorize("hasAuthority('user')")
+    @Limit(key = "pageSize", permitsPerSecond = 30, timeout = 1000)
     public ResponseResult<?> pageSize(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             @RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit
     ) {
-        IPage<Todo> iPage = new Page<>(page,limit);
-        todoService.page(iPage, null);
-
-        ResponseResult<Object> responseResult = new PageResult(page, limit, (int) iPage.getTotal());
-        responseResult.setData(iPage.getRecords());
-        return responseResult;
+        return todoService.pageSize(page,limit);
     }
 }

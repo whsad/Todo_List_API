@@ -1,6 +1,5 @@
 package com.kirito.todoList.handler;
 
-import com.alibaba.fastjson.JSON;
 import com.kirito.todoList.common.dtos.ResponseResult;
 import com.kirito.todoList.common.enums.AppHttpCodeEnum;
 import com.kirito.todoList.utils.WebUtils;
@@ -20,7 +19,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         ResponseResult<?> result = ResponseResult.errorResult(AppHttpCodeEnum.FORBIDDEN);
-        WebUtils.renderString(response, JSON.toJSONString(result));
+        WebUtils.renderString(response, result);
         log.warn("访问权限不足 {}, {}", result.getCode(), result.getInfo());
     }
 }
